@@ -1,0 +1,57 @@
+---
+title: "intro"
+author: '21048'
+date: "2021/12/21"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to StatComp}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+bubble sort
+The basic idea of bubble sort is:By comparing the values of adjacent elements in the sequence to be sorted from front to back, exchange if the reverse order is found.
+The meaning of reverse order: If you want to sort the sequence from small to large, then the front of the two numbers is larger than the back is the reverse order.If the requirement is to sort the sequence from small to large, then each comparison will gradually move the larger value from the front to the back.It's like a bubble under the water.If the original array is in order, it can be traversed once, 
+
+select sort
+The idea of selection and sorting is:Given an array arr, its length is n;For the first time, select a maximum value from arr[0] to arr[n-1] (according to requirements, it can be the maximum value or the minimum value, the same below) to exchange with arr[0];For the second time, select a maximum value from arr[1] to arr[n-1] to exchange with arr[1];And so on, until arr[n-2] to arr[n-1] select the most value exchange to complete the sorting. (There is only one element left, and the previous ones are smaller (or larger) than it) 
+
+```{r}
+vector<-c(5 , 8 , -2 , 20 -6 )
+bubbleSort = function(vector) {
+  n = length(vector)
+  for (i in 1:(n-1)) {
+    for (j in (i+1):n) {
+      if(vector[i]>=vector[j]){
+        temp = vector[i]
+        vector[i] = vector[j]
+        vector[j] = temp
+        }
+      }
+    }
+  return(vector)
+}
+bubbleSort(vector)
+
+```
+```{r}
+vector<-c(300, 50 , 120 , 110 )
+selectSort = function(vector){
+  n = length(vector)
+  for(i in 1:(n-1)){
+    minIndex = i
+    for(j in (i+1):n){
+      if(vector[minIndex]>vector[j]){
+        minIndex = j
+      }
+    }
+    temp = vector[i]
+    vector[i] = vector[minIndex]
+    vector[minIndex] = temp
+  }
+  return(vector)
+}
+selectSort(vector)
+```
+
+

@@ -1,0 +1,1296 @@
+---
+title: "homework"
+author: '21048'
+date: "2021/12/21"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{homework to StatComp}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+## Answer
+
+```{r}
+dotchart(mtcars$mpg,labels = row.names(mtcars),cex = .7,
+         main = "Gas Mileage for Car Models",
+         xlab = "Miles Per gallon")
+```
+
+
+
+```{r}
+a<-matrix(1:10,5,2,byrow=FALSE,dimnames=list(c("r1","r2","r3","r4","r5"),c("c1","c2")))
+knitr::kable(a)
+```
+
+## Question
+
+3.4:
+ The Rayleigh density is
+$$f(x)=\frac{x}{σ^2}e^{-x^2/(2σ^2)},x\geq0,σ>0.$$
+Develop an algorithm to generate random samples from a Rayleigh(σ) distribution. Generate Rayleigh(σ) samples for several choices of σ > 0 and check that the mode of the generated samples is close to the theoretical mode σ(check the histogram).
+
+3.11：
+Generate a random sample of size 1000 from a normal location mixture. The components of the mixture have N(0,1) and N(3,1) distributions with mixing probabilities p1 and p2=1−p1.Graph the histogram of the sample with density superimposed, for p1 = 0.75. Repeat with different values for p1 and observe whether the empirical distribution of the mixture appears to be bimodal. Make a conjecture about the values of p1 that produce bimodal mixtures.
+
+3.20：
+A compound Poisson process is a stochastic process ${X(t),t≥0}$ that can be represented as the random sum $X(t)=\sum_{i=1}^{N(t)}Y_i,t\geq0$, where ${N(t),t≥0}$ is a Poisson process and Y1, Y2,... are iid and independent of {N(t), t≥0}.Write a program to simulate a compound Poisson(λ)–Gamma process (Y has a Gamma distribution). Estimate the mean and the variance of X(10) for several choices of the parameters and compare with the theoretical values.
+Hint: Show that $E[X(t)] = λtE[Y_1]$ and $Var(X(t)) = λtE[Y_1^2]$.
+
+##  Answer
+
+
+#answer1
+```{r}
+R<-function(n,σ){
+r<- sqrt((-2)*(σ^2)*log(1-runif(n)))
+return (r)
+}
+```
+
+```{r}
+σ=0.5
+s<-R(1000,σ)
+hist(s, prob = TRUE, main = "σ=0.5")
+z=seq(0,10,.01)
+lines(z,(z/σ^2)*exp(-(z^2)/(2*σ^2)) )
+```
+
+#answer2
+```{r}
+n<-1000
+x1<-rnorm(n)
+x2<-rnorm(n,3,1)
+s<-x1+x2
+u<-runif(n)
+p<-as.integer(u>0.5)
+x<-p*x1+(1-p)*x2
+hist(x,prob=TRUE)
+par(mfcol=c(1,1))
+plot(density(x))
+
+#As can be seen from the figure, when P is greater than 0.5, it presents a bimodal state.such as 0.6,0.8,0.9 and so on.
+
+```
+
+```{r}
+n<-1000
+x1<-rnorm(n)
+x2<-rnorm(n,3,1)
+s<-x1+x2
+u<-runif(n)
+p<-as.integer(u>0.25)
+x<-p*x1+(1-p)*x2
+hist(x,prob=TRUE)
+par(mfcol=c(1,1))
+plot(density(x))
+
+```
+
+```{r}
+n<-1000
+x1<-rnorm(n)
+x2<-rnorm(n,3,1)
+s<-x1+x2
+u<-runif(n)
+p<-as.integer(u>0.75)
+x<-p*x1+(1-p)*x2
+hist(x,prob=TRUE)
+par(mfcol=c(1,1))
+plot(density(x))
+
+```
+
+#answer3
+```{r}
+n<-1000;t<-10;r=2;lambda=5;beta=2
+     Y<-matrix(0,n,1)
+     for (i in 1:n) {
+           k=rpois(1,t*lambda)
+           X<-rgamma(k,r,beta)
+           Y[i,]<-sum(X)
+     }
+mean(Y);var(Y)
+
+```
+$E[X(t)] =λtE[Y_1]=λt\frac{\gamma}{\beta}=50$ 
+
+$Var(X(t)) = λtE[Y_1^2]=λt\frac{\gamma(1+\gamma)}{\beta^2}=75$
+ 
+
+```{r}
+n=1000;t=10;r=1;lambda=4;beta=4
+     Y<-matrix(0,n,1)
+     for (i in 1:n) {
+           k=rpois(1,t*lambda)
+           X<-rgamma(k,r,beta)
+           Y[i,]<-sum(X)
+     }
+mean(Y);var(Y)
+
+```
+$E[X(t)] =λtE[Y_1]=λt\frac{\gamma}{\beta}=10$ 
+
+$Var(X(t)) = λtE[Y_1^2]=λt\frac{\gamma(1+\gamma)}{\beta^2}=5$
+ 
+
+
+
+
+# 5.4
+```{r}
+beta_pdf <- function(t, n=50000){
+  # sample from uniform distribution
+  x <- runif(n)
+  res <- mean((x<t)*gamma(6)/(gamma(3))^2*x^2*(1-x)^2)
+  return(res)
+}
+
+beta_pdf(0.1);pbeta(0.1,3,3)
+beta_pdf(0.2);pbeta(0.2,3,3)
+beta_pdf(0.3);pbeta(0.3,3,3)
+beta_pdf(0.4);pbeta(0.4,3,3)
+beta_pdf(0.5);pbeta(0.5,3,3)
+beta_pdf(0.6);pbeta(0.6,3,3)
+beta_pdf(0.7);pbeta(0.7,3,3)
+beta_pdf(0.8);pbeta(0.8,3,3)
+beta_pdf(0.9);pbeta(0.9,3,3)
+```
+The pbeta return values increase in order
+
+# 5.9
+```{r}
+var_rayleigh  <- function(sigma, n=50000){
+   u1 <- runif(n)
+   u2 <- runif(n)
+   x1 <- sqrt(-2*sigma^2*log(1-u1))
+   x2 <- sqrt(-2*sigma^2*log(1-u2))
+   var_1 <- var((x1+x2)/2)
+   u1_dual <- 1-u1
+   x1_dual <- sqrt(-2*sigma^2*log(1-u1_dual))
+   var_2 <- var((x1+x1_dual)/2)
+   return(c(var_1, var_2))
+ }
+var_rayleigh(1)
+var_rayleigh(2)
+var_rayleigh(3)
+```
+The variance is reduced by 5%
+
+# 5.13
+```{r}
+# let the sampling distribution f1 be an exponential distribution
+n <- 50000
+x <- rexp(n)
+mean((x>1)*x^2*dnorm(x)/dexp(x))
+
+# let the sampling distribution f1 be an chi-square distribution
+n <- 50000
+x <- rchisq(n, df = 1)
+mean((x>1)*x^2*dnorm(x)/dchisq(x, df = 1))
+```
+
+So the second function has the least variance
+
+
+# 5.14
+```{r}
+n <- 50000
+x <- rnorm(n)
+mean((x>1)*x^2)
+```
+
+##Answers
+6.5
+```{r}
+n<-20
+alpha<-.05
+UCL<-replicate(1000,expr = {
+  x<-rchisq(n,df=2)
+  (n-1)*var(x)/qchisq(0.5*alpha,df=n-1)
+})
+DCL<-replicate(1000,expr = {
+  x<-rchisq(n,df=2)
+  (n-1)*var(x)/qchisq(1-0.5*alpha,df=n-1)
+})
+sum(DCL<4)
+sum(UCL>4)
+mean(UCL>4)
+mean(DCL<4)
+```
+It has a more stable normal deviation than the variance interval
+
+
+6.A
+Assume that the significance level is 0.05.(alpha=0.05)
+
+##chisp distribution
+```{r}
+n<-20
+alpha<-.05
+mu0<-1
+m<-10000
+p<-numeric(m)
+
+for (j in 1:m)
+{
+  x<-rchisq(n,df=1,)
+  ttest<-t.test(x,alternative="two.sided",mu=mu0)
+  p[j]<-ttest$p.value
+}
+
+p.hat<-mean(p<alpha)
+print(c(p.hat))
+```
+p>alpha Accept the null hypothesis
+
+##Uniform distribution
+```{r}
+n<-20
+alpha<-.05
+mu0<-0.5
+m<-10000
+p<-numeric(m)
+
+for (j in 1:m)
+{
+  x<-runif(n,min=0,max=1)
+  ttest<-t.test(x,alternative="two.sided",mu=mu0)
+  p[j]<-ttest$p.value
+}
+
+p.hat<-mean(p<alpha)
+print(c(p.hat))
+```
+p≈alpha
+
+##Exponential distribution
+```{r}
+n<-20
+alpha<-.05
+mu0<-0.5
+m<-10000
+p<-numeric(m)
+
+for (j in 1:m)
+{
+  x<-rexp(n,rate=1)
+  ttest<-t.test(x,alternative="two.sided",mu=mu0)
+  p[j]<-ttest$p.value
+}
+
+p.hat<-mean(p<alpha)
+print(c(p.hat))
+```
+p>alpha
+
+
+##ex3
+If we obtain the powers for two methods under a particular simulation setting with 10,000 experiments: say, 0.651 for one method and 0.676 for another method. We want to know if the powers are different at 0.05 level.
+
+Since the estimate of p value is subject to some error, it cannot be said that it is not equal to 0.05
+
+Q1:What is the corresponding hypothesis test problem?
+Answer h0:p=0.05 <->h1:P≠0.05
+
+Q2:What test should we use? Z-test, two-sample t-test, paired-t test or McNemar test? Why?
+Answer I think we can use the paired-t test method, because it Can provide more degrees of freedom to estimate p value to reduce the error.
+
+Q3:Please provide the least necessary information for hypothesistesting.
+Answer Given the distribution of the sample
+
+##test example 6.10
+```{r}
+d<-2
+n<-c(10,20,30,50,100,500)
+cv<-qchisq(0.975,df=d * (d+1) * (d+2) / 6)
+
+sigmam = matrix(c(1, 0.3, 0.3, 1.5), nrow = 2)
+sk<-function(x){
+  num_row <- nrow(x)
+  xbar <- as.vector(apply(x, 2, mean))
+  xbar <- matrix(xbar, nrow = num_row, ncol = ncol(x))
+  sigma <- cov(x)
+  inverse_sigma <- solve(sigma)
+  s <-((x - xbar) %*% inverse_sigma %*% t(x - xbar)) ^ 3
+  return(mean(s))
+}
+
+p.reject <- numeric(length(n))
+m<-10
+mum <- c(0, 0)
+for(i in 1:length(n)){
+  sktests <-numeric(m)
+  for(j in 1:m){
+    x <- MASS::mvrnorm(n[i], mum, sigmam)
+    sktests[j] <- as.integer((sk(x) * n[i] / 6 )> cv)
+  }
+  p.reject[i] <- mean(sktests)
+}
+print(c(n))
+print(c(p.reject))
+```
+
+
+##test example 6.10
+```{r}
+alpha <- 0.1 
+n <- 30 
+m <- 25
+d <- 2
+epsilon <- c(seq(0, .15, .01), seq(.15, 1, .05)) 
+N <- length(epsilon) 
+pwr <- numeric(N) 
+cv <- qchisq(1-alpha,d * (d+1) * (d+2) / 6) 
+
+for (j in 1:N) {
+  e <- epsilon[j]
+  sktests <- numeric(m)
+  for (i in 1:m) {
+     pb = sample(c(1,2), n, replace = TRUE, prob = c(1 - e, e ))
+     x1 <- MASS::mvrnorm(n, c(0,0), matrix(c(1,0.3,0.3,1.5), nrow = 2)) 
+     x2 <- MASS::mvrnorm(n, c(0,0), matrix(c(10,0.3,0.3,15), nrow = 2)) 
+     x = as.integer(pb == 1) * x1 + as.integer(pb == 2) * x2
+     sktests[i] <- as.integer(n*sk(x)/6 >= cv) }
+   pwr[j] <- mean(sktests) 
+}
+
+plot(epsilon, pwr, type = "b",xlab = bquote(epsilon))
+abline(h = .1, lty = 3)
+se <- sqrt(pwr * (1-pwr) / m) 
+lines(epsilon, pwr+se, lty = 3)
+lines(epsilon, pwr-se, lty = 3)
+```
+```{r}
+library("bootstrap")
+
+B = 20
+n = nrow(law)
+
+theta.hat = cor(law$LSAT, law$GPA)
+theta.hats.b = numeric(B)
+
+ts = numeric(B)
+
+for (b in 1:B) {
+  i = sample(x = 1:n, size = n, replace = TRUE)
+  law.b = law[i,]
+  theta.hats.b[b] = cor(law.b$LSAT, law.b$GPA)
+  sd.theta.hats.b = numeric(B)
+  
+  for(b2 in 1:B) {
+    i2 = sample(x = 1:n, size = n, replace = TRUE)
+    law.b2 = law.b[i2,]
+    sd.theta.hats.b[b2] = cor(law.b2$LSAT, law.b2$GPA)
+  }
+  
+  se.b = sd(sd.theta.hats.b)
+  
+  ts[b] = (theta.hats.b[b] - theta.hat) / se.b
+}
+
+alpha = 0.05
+ts.ordered = sort(ts)
+
+qs = quantile(ts.ordered, probs = c(alpha/2, 1-alpha/2))
+
+se.hat = sd(theta.hats.b)
+
+(CI = c(theta.hat - qs[2]*se.hat, theta.hat - qs[1]*se.hat))
+
+hist(ts, breaks = 100, xlim = c(-5, 10))
+```
+
+
+```{r}
+library(boot)
+hours = aircondit$hours
+n = length(hours)
+
+mle.lambda = function (values) {
+  return(length(values)/sum(values))
+}
+
+lambda.hat = mle.lambda(hours)
+
+lambda.hats.b = numeric(B)
+
+B = 200
+for (b in 1:B) {
+  i = sample(1:n, n, replace = TRUE)
+  hours.b = hours[i]
+  lambda.hats.b[b] = mle.lambda(hours.b)
+}
+
+lambda.hats.b.mean = mean(lambda.hats.b)
+
+(bias = lambda.hats.b.mean - lambda.hat)
+
+```
+
+
+```{r}
+library(boot)
+hours = aircondit$hours
+n = length(hours)
+
+mle.lambda = function (values) {
+  return(length(values)/sum(values))
+}
+
+time.b = numeric(B)
+ts = numeric(B)
+
+time.hat = 1/mle.lambda(hours)
+
+B = 200
+for (b in 1:B) {
+  i = sample(1:n, n, replace = TRUE)
+  hours.b = hours[i]
+  time.b[b] = 1/mle.lambda(hours.b)
+  
+  times.b2 = numeric(B)
+  
+  for (b2 in 1:B) {
+    i2 = sample(1:n, n, replace = TRUE)
+    hours.b2 = hours.b[i2]
+    times.b2[b2] = 1/mle.lambda(hours.b2)
+  }
+  
+  ts[b] = (time.b[b] - time.hat) / sd(times.b2)
+}
+
+se.hat = sd(time.b)
+alpha = 0.05;
+q.probs = c(alpha/2, 1-alpha/2)
+
+setCINames = function (object) {
+  return(setNames(object, c(paste((alpha/2)*100, '%'), paste((1-alpha/2)*100, '%'))))
+}
+
+# plot observed statistic 1/lambda, as well as t values for comparison with the bootstrap t CI.
+par(mfrow=c(1,2))
+hist(time.b, breaks = 100)
+hist(ts, breaks = 100)
+
+# standard normal.
+q = qnorm(1-alpha/2)
+ci.sn = time.hat + c(-1,1)*q*se.hat
+(ci.sn = setCINames(ci.sn))
+
+# basic boostrap.
+qs.time.hat = quantile(x = time.b, p = q.probs)
+ci.basic = rev(2*time.hat - qs.time.hat)
+(ci.basic = setCINames (object = ci.basic))
+
+# percentile.
+(ci.percentile = qs.time.hat)
+
+# bootstrap t.
+qs.t = quantile(x = ts, p = q.probs)
+(ci.t = setCINames(rev(time.hat - qs.t*se.hat)))
+```
+
+
+##7.B
+```{r}
+n = 100
+mc.skewness = function(xs) {
+  sample.skewness = function (sample) {
+    mu = mean(sample)
+    n = length(sample)
+    num = 1/n * sum(sapply(sample, function (x) (x - mu)^3))
+    denom = sd(sample)^3
+    return (num/denom)
+  }
+  
+  theta.hat = sample.skewness(xs)
+  
+  B = 200
+  theta.hats.b = numeric(B)
+  
+  for (b in 1:B) {
+    i = sample(1:n, n, TRUE)
+    xs.b = xs[i]
+    theta.hats.b[b] = sample.skewness(xs.b)
+  }
+  
+  sd.hat = sd(theta.hats.b)
+  
+
+  par(mfrow = c(1, 1))
+  hist(theta.hats.b)
+
+  alpha = 0.05
+  probs = c(alpha/2, 1-alpha/2)
+  names = sapply(probs, function (p) paste(p*100, '%', sep = ''))
+  qs.theta.hats.b = quantile(theta.hats.b, probs)
+  
+  qs.norm = qnorm(probs)
+  ci.norm = rev(theta.hat - qs.norm * sd.hat)
+  ci.basic = rev(2*theta.hat - qs.theta.hats.b)
+  ci.percentile = qs.theta.hats.b
+  ci.data = data.frame(rbind(ci.norm, ci.basic, ci.percentile))
+  colnames(ci.data) = names
+  ci.data['left.miss'] = 0
+  ci.data['right.miss'] = 0
+  
+  rep = 1000
+  
+  for (r in 1:rep) {
+    i = sample(1:n, n, replace = TRUE)
+    skew = sample.skewness(xs[i])
+    for (y in 1:nrow(ci.data)) {
+      lower = ci.data[y,names[1]]
+      upper = ci.data[y,names[2]]
+      if (skew < lower) {
+        ci.data[y,'left.miss'] = ci.data[y,'left.miss'] + 1
+      } else if (skew > upper) {
+        ci.data[y,'right.miss'] = ci.data[y,'right.miss'] + 1
+      }
+    }
+  }
+  
+  ci.data$left.miss = ci.data$left.miss/rep
+  ci.data$right.miss = ci.data$right.miss/rep
+  
+  return(ci.data)
+}
+
+mean = 3
+sd = 4
+xs = rnorm(n, mean = mean, sd = sd)
+mc.skewness(xs)
+df = 5
+xs = rchisq(n, df = df)
+mc.skewness(xs)
+```
+
+##8.2
+```{r}
+soybean = chickwts$weight[chickwts$feed=="soybean"]
+linseed = chickwts$weight[chickwts$feed=="linseed"]
+n = length(soybean)
+m =length(linseed)
+
+tmp = min(n, m)
+soybean = sort(soybean[1:tmp])
+linseed = sort(linseed[1:tmp])
+
+zs = c(soybean, linseed)
+spearman.cor.test = cor.test(x = soybean, y = linseed, method = "spearman")
+
+B = 1000
+k = length(zs)
+
+rhos = length(rep)
+
+for (b in 1:B) {
+  i = sample(1:k, k/2, replace = FALSE)
+  xs = zs[i]
+  ys = zs[-i]
+  rhos[b] = cor(x = xs, y = ys, method = "spearman")
+}
+
+hist(rhos, breaks = 100)
+
+(theta.hat = spearman.cor.test$estimate)
+
+spearman.cor.test$p.value
+
+(p.hat = mean(abs(rhos) > abs(theta.hat)))
+
+(alpha = 0.05)
+
+```
+
+## excise 2   need to install relevant package
+```{r}
+library(FastKNN)
+library(pdist)
+
+# returns T.
+rth.nn = function (x, y, r) {
+  n1 = length(x)
+  n2 = length(y)
+  
+  z = matrix(c(x,y), ncol = 1)
+  n = dim(z)[1]
+  
+  # distance matrix between z and z.
+  distance_matrix = as.matrix(dist(z))
+  
+  # matrix where row i represents k nearest neighbors of z[i]
+  nn = matrix(0, n, r)
+  for (i in 1:n) {
+    nn[i,] = k.nearest.neighbors(i, distance_matrix, k = r)
+  }
+
+  block1 = nn[1:n1,]
+  block2 = nn[n1+1:n2,]
+  
+  T = (sum(block1<=n1) + sum(block2>n1))/(n*k)
+  
+  return (T)
+}
+
+feed1 = "sunflower"
+feed2 = "linseed"
+x = chickwts$weight[chickwts$feed == feed1]
+y = chickwts$weight[chickwts$feed == feed2]
+r = 3
+
+rth.nn(x, y, r)
+```
+
+
+```{r}
+library(FastKNN)
+library(pdist)
+library(energy)
+library(mvtnorm)
+library(boot)
+
+# returns T.
+rth.nn = function (dist, xi, sizes, nr.neighbors) {
+  n1 = sizes[1]
+  n2 = sizes[2]
+  n = n1 + n2
+  
+  perm.dist = dist[xi,]
+  
+  # matrix where row i represents k nearest neighbors of z[i]
+  nn = matrix(0, n, nr.neighbors)
+  for (i in 1:n) {
+    nn[i,] = k.nearest.neighbors(i, perm.dist, k = nr.neighbors)
+  }
+  
+  block1 = nn[1:n1,]
+  block2 = nn[n1+1:n2,]
+  
+  T = (sum(block1<=n1) + sum(block2>n1))/(n*nr.neighbors)
+  
+  return (T)
+}
+
+n1 = 20
+n2 = 20
+d = 2
+a = 2/sqrt(d)
+sizes = c(n1, n2)
+mean1 = c(0, 0)
+mean2 = c(0, 0.5)
+Sigma1 = diag(d)
+Sigma2 = diag(d)
+x = rmvnorm(n = n1, mean = mean1, sigma = Sigma1)
+y = rmvnorm(n = n2, mean = mean2, sigma = Sigma2)
+z = rbind(x, y)
+dist = as.matrix(dist(z))
+rep = 999
+nr.neighbors = 3
+
+e = eqdist.etest(dist, sizes, TRUE,R = rep)
+
+# boot.obj = boot(data = dist, statistic = eqdist.etest, sim = "permutation", R = rep, sizes = sizes, distance = TRUE)
+
+boot.obj = boot(data = dist, statistic = rth.nn, sim = "permutation", R = rep, sizes = sizes, nr.neighbors = nr.neighbors)
+
+
+if (FALSE){
+total.n.x = dim(x)[1]
+total.n.y = dim(y)[1]
+total.sizes = c(total.n.x, total.n.y)
+r = 3
+
+T0 = rth.nn(dist, total.sizes, r)
+e0 = eqdist.etest(dist, total.sizes, TRUE)$statistic
+
+Ts = numeric(rep)
+es = numeric(rep)
+
+for (i in 1:rep) {
+  k1 = sample(1:total.n.x, n1, replace = FALSE)
+  k2 = total.n.x + sample(1:total.n.y, n2, replace = FALSE)
+  ks = c(k1, k2)
+  # shuffle distance matrix according to permutation.
+  dist.i = dist[ks,ks]
+  Ts[i] = rth.nn(dist.i, sizes, r)
+  es[i] = eqdist.etest(dist.i, sizes, TRUE)$statistic
+}
+
+par(mfrow=c(1,2))
+hist(Ts)
+hist(es)
+
+(p.e = mean(es >= e0))
+(p.T = mean(Ts >= T0))
+}
+```
+
+##9.3 参考例9.1 和9.8
+```{r}
+#生成标准柯西分布 先设置参数
+theta <- 1
+alpha<- 0
+N <- 2000
+stopifnot(theta > 0)
+cauchy_df <-function(x) 
+{
+  1/(theta*pi*(1+((x-alpha)/theta)^2))
+}
+#正太分布
+norm_df <- function(x, df) 
+{
+  dnorm(x = x, mean = df)
+}
+#n个正态分布随机数构成的向量
+norm_random <- function(df) 
+{
+  rnorm(n = 1, mean = df)
+}
+
+Metropolis_Hastings <-function (N, cauchy_df, norm_df, norm_random) 
+{
+  x = numeric(N)#初始化维度
+  x[1] = norm_random(1)
+  k = 0
+  u = runif(N)
+  for (i in 2:N) 
+  {
+    xt <- x[i-1]
+    y <- norm_random(xt)
+    num <-cauchy_df(y) *  norm_df(xt, y) / (cauchy_df(xt) *  norm_df(y, xt))
+    if (u[i] <= num) 
+    {
+      x[i] <- y
+    } 
+    else 
+    {
+      k <- k + 1
+      x[i]<-xt
+    }
+  }
+  print(k)
+  return(x)
+}
+
+x = Metropolis_Hastings(N, cauchy_df, norm_df, norm_random)
+chain = 1001:N  #取后1000项
+plot(chain, x[chain], type="l")
+hist(x, probability = TRUE, breaks = 100)
+plot.x = seq(min(x), max(x), 0.01)
+lines(plot.x, cauchy_df(plot.x))
+
+Gelman.Rubin<-function(psi)
+{
+  psi<-as.matrix(psi)
+  n<-ncol(psi)
+  k<-nrow(psi)
+  psi.means<-rowMeans(psi)
+  B<-n*var(psi.means)
+  psi.w<-apply(psi,1,"var")
+  W<-mean(psi.w)
+  v.hat<-W*(n-1)/n+(B/n)
+  r.hat<-v.hat/W
+  return(r.hat)
+}
+
+cauchy.chain<-function()
+{
+  Metropolis_Hastings
+}
+
+
+sigma <- .2 #parameter of proposal distribution
+k1 <- 4 #number of chains to generate
+l <- 15000 #length of chains
+b1 <- 1000
+x0 = c(-10, -5, 5, 10) # initial values.
+
+#plot the sequence of R hat statistics
+rhat<-rep(0,l)
+for(j in l) 
+{
+  rhat[j]<-Gelman.Rubin(x0)
+}
+#plot (rhat[1:N],type="l",xlab="",ylab="R")
+#abline(h=1.1,lty=2)
+
+```
+
+
+##9.8 参考例9.7 和9.8 和课件上的代码
+```{r}
+n <-100
+a <- 30
+b <- 60
+
+xy_f<- function (x, y) 
+{
+  gamma(n + 1) / (gamma(x + 1) * gamma(n - x + 1))  * y^(x + a - 1) * (1 - y)^(n - x + b - 1)
+}
+
+m <- 2000
+d <- 2
+x <- matrix(0, nrow = m, ncol = d)
+
+for (i in 2:m) 
+{
+  xt <- x[i-1,]
+  xt[1] <- rbinom(1, n, xt[2])
+  xt[2]<- rbeta(1, xt[1] + a, n - xt[1] + b)
+  x[i,] <- xt
+}
+
+plot(x, cex = 0.1)
+u <- seq(from = min(x[,1]), to = max(x[,1]), length.out = 200)
+v <- seq(from = min(x[,2]), to = max(x[,2]), length.out = 200)
+uv <- t(sapply(u, function (x) sapply(v, function (y) xy_f(x, y))))
+contour(u, v, uv, add = TRUE, col = 2)
+
+xy_f.chain<-function()
+{
+  xy_f()
+}
+
+
+Gelman.Rubin<-function(psi)
+{
+  psi<-as.matrix(psi)
+  n<-ncol(psi)
+  k<-nrow(psi)
+  psi.means<-rowMeans(psi)
+  B<-n*var(psi.means)
+  psi.w<-apply(psi,1,"var")
+  W<-mean(psi.w)
+  v.hat<-W*(n-1)/n+(B/n)
+  r.hat<-v.hat/W
+  return(r.hat)
+}
+
+sigmas = c(0.1, 0.2, 1)
+l = 10000 # length of one chain.
+x0 = c(-10, -5, 5, 10) # initial values.
+#plot the sequence of R hat statistics
+rhat<-rep(0,l)
+for(j in l) 
+{
+  rhat[j]<-Gelman.Rubin(x0)
+}
+#plot (rhat[1:m],type="l",xlab="",ylab="R")
+#abline(h=1.1,lty=2)
+```
+
+##ex3
+```{r}
+#生成标准柯西分布 先设置参数
+theta <- 1
+alpha<- 0
+N <- 20
+stopifnot(theta > 0)
+cauchy_df <-function(x) 
+{
+  1/(theta*pi*(1+((x-alpha)/theta)^2))
+}
+#正太分布
+norm_df <- function(x, df) 
+{
+  dnorm(x = x, mean = df)
+}
+#n个正态分布随机数构成的向量
+norm_random <- function(df) 
+{
+  rnorm(n = 1, mean = df)
+}
+
+Metropolis_Hastings <-function (N, cauchy_df, norm_df, norm_random) 
+{
+  x = numeric(N)#初始化维度
+  x[1] = norm_random(1)
+  k = 0
+  u = runif(N)
+  for (i in 2:N) 
+  {
+    xt <- x[i-1]
+    y <- norm_random(xt)
+    num <-cauchy_df(y) *  norm_df(xt, y) / (cauchy_df(xt) *  norm_df(y, xt))
+    if (u[i] <= num) 
+    {
+      x[i] <- y
+    } 
+    else 
+    {
+      k <- k + 1
+      x[i]<-xt
+    }
+  }
+  print(k)
+  return(x)
+}
+cauchy.chain <- function(sigma, N, X1) {
+        x <- rep(0, N)
+        x[1] <- X1
+        u <- runif(N)
+
+        for (i in 2:N) {
+            xt <- x[i-1]
+            y <- rnorm(1, xt, sigma)     #candidate point
+            r1 <- dnorm(y, 0, 1) * dnorm(xt, y, sigma)
+            r2 <- dnorm(xt, 0, 1) * dnorm(y, xt, sigma)
+            r <- r1 / r2
+            if (u[i] <= r) x[i] <- y else
+                 x[i] <- xt
+            }
+        return(x)
+        }
+
+    sigma <- 1     #parameter of proposal distribution
+    k <- 4          #number of chains to generate
+    n <- 15     #length of chains
+    b <- 10       #burn-in length
+
+    x0 <- c(-10, -5, 5, 10)
+
+    X <- matrix(0, nrow=k, ncol=n)
+    for (i in 1:k)
+        X[i, ] <- cauchy.chain(sigma, n, x0[i])
+
+    psi <- t(apply(X, 1, cumsum))
+    #plot the sequence of R hat statistics
+    rhat <- rep(0, n)
+    for (j in (b+1):n)
+        rhat[j] <- Gelman.Rubin(psi[,1:j])
+    plot(rhat[(b+1):n], type="l", xlab="", ylab="R")
+    abline(h=1.1, lty=2)
+```
+
+```{r}
+n <-100
+a <- 30
+b <- 60
+
+xy_f<- function (x, y) 
+{
+  gamma(n + 1) / (gamma(x + 1) * gamma(n - x + 1))  * y^(x + a - 1) * (1 - y)^(n - x + b - 1)
+}
+
+m <- 2000
+d <- 2
+x <- matrix(0, nrow = m, ncol = d)
+
+for (i in 2:m) 
+{
+  xt <- x[i-1,]
+  xt[1] <- rbinom(1, n, xt[2])
+  xt[2]<- rbeta(1, xt[1] + a, n - xt[1] + b)
+  x[i,] <- xt
+}
+
+xy_f.chain<-function()
+{
+  xy_f()
+}
+
+
+Gelman.Rubin<-function(psi)
+{
+  psi<-as.matrix(psi)
+  n<-ncol(psi)
+  k<-nrow(psi)
+  psi.means<-rowMeans(psi)
+  B<-n*var(psi.means)
+  psi.w<-apply(psi,1,"var")
+  W<-mean(psi.w)
+  v.hat<-W*(n-1)/n+(B/n)
+  r.hat<-v.hat/W
+  return(r.hat)
+}
+
+sigmas = c(0.1, 0.2, 1)
+l = 10000 # length of one chain.
+x0 = c(-10, -5, 5, 10) # initial values.
+#plot the sequence of R hat statistics
+rhat<-rep(0,l)
+for(j in l) 
+{
+  rhat[j]<-Gelman.Rubin(x0)
+}
+plot (rhat[1:m],type="l",xlab="",ylab="R")
+abline(h=1.1,lty=2)
+
+```
+
+##11.3
+```{r}
+a_vec <- c(1,2)
+lengths <- length(a_vec)
+
+func1 <- function (a_vec, k) 
+{
+  lengths = length(a_vec)
+  return((-1)^k * exp((2*k+2)*log(norm(a_vec, type = "2")) - lgamma(k+1) - k*log(2) - log(2*k + 1) - log(2*k + 2) + lgamma((d+1)/2) + lgamma(k + 3/2) - lgamma(k + d/2 + 1)))
+}
+
+n = 400
+
+totalSum <- function (a_vec)
+{
+  sum(sapply(0:n, function (k) func1(a_vec, k)))
+}
+```
+
+
+
+##11.5
+```{r}
+func2 <- function (k) 
+{
+  func3<- function(u, n) 
+  {
+    (1 + u^2/(n-1))^(-n/2)
+  }
+
+  get.c <- function (n, a) 
+  {
+    sqrt(a^2 * n / (n + 1 - a^2))
+  }
+  
+  func4 <- function (n, a) 
+  {
+    
+    func5 <-function (u) 
+    {
+      func3(u, n)
+    }
+    c = get.c(n - 1, a)
+    2/sqrt(pi*(n-1)) * exp(lgamma(n/2)-lgamma((n-1)/2)) * integrate(func5, lower = 0, upper = c)$value
+  }
+  
+  f <- function (a) 
+  {
+    left = func4(k, a)
+    right = func4(k + 1, a)
+    return (left - right)
+  }
+  
+  eps<- 1e-2
+  if (f(eps) < 0 && f(sqrt(k) - eps) > 0 || f(eps) > 0 && f(sqrt(k) - eps) < 0)
+  {
+    r = uniroot(f, interval = c(eps, sqrt(k)-eps))$root
+  } 
+  else 
+  {
+    r = NA
+  }
+  return(r)
+}
+
+rs2 <- sapply(c(4:25, 100, 500, 1000), function (k) 
+{
+  func2(k)
+})
+```
+
+
+
+##ex3 : SupposeT1,...,Tnare i.i.d. samples drawn from theexponential distribution with expectationλ. Those valuesgreater thanτare not observed due to right censorship, so thatthe observed values areYi=TiI(Ti≤τ) +τI(Ti> τ),i=1,...,n. Supposeτ=1 and the observedYivalues are asfollows:0.54,0.48,0.33,0.43,1.00,1.00,0.91,1.00,0.21,0.85Use the E-M algorithm to estimateλ, compare your result withthe observed data MLE (note:Yifollows a mixturedistribution).
+```{r}
+#MLE
+y <- c(0.54,0.48,0.33,0.43,1.00,1.00,0.91,1.00,0.21,0.85)
+mlogL <- function(theta=1) 
+{
+return(-(length(y)*log(theta)-theta*sum(y)))
+}
+library(stats4)
+fit <- mle(mlogL)
+as.numeric(c(1/mean(y),fit@coef,sqrt(fit@vcov)))
+#EM Algorithm
+## Help Function
+logSum <- function(v) {
+   m = max(v)
+   return ( m + log(sum(exp(v-m))))
+}
+
+hard.E.step <- function(gamma, model, counts){
+
+  N <- dim(counts)[2] 
+  K <- dim(model$mu)[1]
+
+  # E step:    
+  for (n in 1:N){
+    for (k in 1:K){
+      gamma[n,k] <- log(model$rho[k,1]) +  sum(counts[,n] * log(model$mu[k,])) 
+    }
+    logZ = logSum(gamma[n,])
+    gamma[n,] = gamma[n,] - logZ
+    max.index <- which.max(gamma[n,])
+    gamma[n,] <- 0
+    gamma[n,max.index] <- 1 
+  }
+
+  return (gamma)
+}
+# M step
+M.step <- function(gamma, model, counts,eps=1e-10){
+    N <- dim(counts)[2]   
+    W <- dim(counts)[1]  
+    K <- dim(model$mu)[1] 
+    for (k in 1:K) {
+        
+        model$rho[k,1] <- sum(gamma[,k])/N
+        total <- sum(gamma[,k] * t(counts)) + W * eps
+        for (w in 1:W){
+            model$mu[k,w] <- (sum(gamma[,k] * counts[w,]) + eps)/total
+        }  
+        
+    }
+      return (model)
+}
+
+
+```
+
+##11.1.2 ex5
+```{r}
+bootstraps <- lapply(1:10, function(i) 
+{
+  rows <- sample(1:nrow(mtcars), rep = TRUE)
+  mtcars[rows, ]
+})
+results_for <- vector("list", 10)
+for(i in seq_along(bootstraps))
+{
+  results_for[[i]] <- lm(mpg ~ disp, data = bootstraps[[i]])
+}
+results_apply <- vector("list", 10)
+lm_mtcars <- function(data)
+{
+  lm(mpg ~ disp, data = data)
+}
+results_apply <- lapply(bootstraps, lm_mtcars)
+rsq <- function(mod) summary(mod)$r.squared
+unlist(lapply(results_for, rsq))
+unlist(lapply(results_apply, rsq))
+```
+
+
+##11.2.5 Exercises :ex1
+#1. Use vapply() to:
+#a) Compute the standard deviation of every column in a numeric data frame.
+#b) Compute the standard deviation of every numeric column
+#in a mixed data frame. (Hint: you’ll need to use vapply()  twice.)
+```{r}
+#(a)
+all(unlist(lapply(mtcars, is.numeric)))
+vapply(mtcars, sd, numeric(1))
+
+#(b)
+mtcars_mixed <- cbind(mtcars, letter = letters[1:dim(mtcars)[1]])
+num_indexes <- vapply(mtcars_mixed, is.numeric, logical(1))
+vapply(mtcars_mixed[,num_indexes], sd, numeric(1))
+```
+
+##11.2.5 Exercises :ex7
+#Implement mcsapply(), a multicore version of sapply(). Can
+#you implement mcvapply(), a parallel version of vapply()?
+#Why or why not?
+
+
+##Answer:sapply() is a thin wrapper around lapply() that transforms a list into a
+#vector in the final step. mcvapply() is an implementation of lapply() that
+#assigns results to a vector (or matrix) of appropriate type instead of as
+#a list. The following code shows a pure R implementation of the essence
+#of sapply() and mcvapply() (the real functions have better error handling
+#and preserve names, among other things).
+
+
+#define C++ and R function
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#C++ function
+library(Rcpp)
+cppFunction('NumericMatrix gibbsC(int N, int n,double a,double b,NumericVector x) 
+{
+  NumericMatrix mat(N, 2);
+  mat(0,0)=x[1];
+  mat(0,1)=x[2];
+  for(int i = 1; i < N; i++) 
+  {
+    double y=mat(i-1,1);
+    mat(i,0)=rbinom(1,n,y)[0];
+    double z=mat(i,0);
+    mat(i, 1) = rbeta(1,z+a,n-z+b)[0];
+  }
+  return mat;
+}
+')
+
+
+#R function
+gibbsR <- function(N, n,a,b,x) 
+{
+  mat <- matrix(0,N, 2)
+  mat[1,]<-x
+  a<-0
+  b<-0
+  N<-0
+  for (i in 2:N) 
+  {
+    y<-mat[i-1,2]
+    mat[i,2]<-rbinom(1,n,y)
+    z<-mat[i,1]
+    mat[i,2]<-rbeta(1,z+a,n-z+b)
+  }
+  return (mat)
+}
+
+```
+
+
+#compare C++ to R
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+N<-5000
+n<-30
+x <- c(0,0.7)
+a<-1.5
+b<-1.5
+
+
+C<-gibbsC(N,  n, a, b,x)
+R<-gibbsR(N,  n, a, b,x)
+
+
+plot(C[1001:N,1],C[1001:N,2],xlab = "value1",ylab = "value2",xlim = NULL, ylim = NULL,main = NULL, sub = NULL)
+plot(R[1001:N,1],R[1001:N,2],xlab = "value_1",ylab = "value_2",xlim = NULL, ylim = NULL,main = NULL, sub = NULL)
+
+qqplot(R[1001:N,1],C[1001:N,1],xlab='R_function',ylab='cpp_function',main='1')
+abline(0, 1)
+qqplot(R[1001:N,2],C[1001:N,2],xlab='R_function',ylab='cpp_function',main='2')
+abline(0, 1)
+
+```
+
+
+#time comparation
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(microbenchmark)
+ts <- microbenchmark(C_function=gibbsC(N,  n, a, b,x),R_function=gibbsR(N, n, a, b ,x))
+print(summary(ts)[, c(1,3,5,6)])
+```
+
+
+#Comments results.
+
+According to the experimental results, the C++ function runs faster than the R function.More importantly,Loops that cannot be vectorized.
+Because problems that require advanced data structures and algorithms that R doesn’t provide andRecursive functions, or problems which involve calling functions millions of times.So in general, if the efficiency of the program is very slow, we should consider using C++ functions.
+
+
+
+
+
+
+
+
+
+
+
+
